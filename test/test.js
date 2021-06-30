@@ -10,7 +10,7 @@ describe('/login', () => {
   beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ username: 'testuser' });
-   });
+  });
 
   afterAll(() => {
     passportStub.logout();
@@ -35,10 +35,7 @@ describe('/login', () => {
 
 describe('/logout', () => {
   test('/ にリダイレクトされる', () => {
-    return request(app)
-      .get('/logout')
-      .expect('Location', '/')
-      .expect(302);
+    return request(app).get('/logout').expect('Location', '/').expect(302);
   });
 });
 
@@ -53,7 +50,7 @@ describe('/schedules', () => {
     passportStub.uninstall(app);
   });
 
-  test('予定が作成でき、表示される', done => {
+  test('予定が作成でき、表示される', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -68,7 +65,12 @@ describe('/schedules', () => {
           const createdSchedulePath = res.headers.location;
           request(app)
             .get(createdSchedulePath)
-            // TODO 作成された予定と候補が表示されていることをテストする
+            .expect(/テスト予定1/)
+            .expect(/テストメモ1/)
+            .expect(/テストメモ2/)
+            .expect(/テスト候補1/)
+            .expect(/テスト候補2/)
+            .expect(/テスト候補3/)
             .expect(200)
             .end((err, res) => {
               if (err) return done(err);
@@ -76,12 +78,12 @@ describe('/schedules', () => {
               const scheduleId = createdSchedulePath.split('/schedules/')[1];
               Candidate.findAll({
                 where: { scheduleId: scheduleId }
-              }).then(candidates => {
-                const promises = candidates.map(c => {
+              }).then((candidates) => {
+                const promises = candidates.map((c) => {
                   return c.destroy();
                 });
                 Promise.all(promises).then(() => {
-                  Schedule.findByPk(scheduleId).then(s => {
+                  Schedule.findByPk(scheduleId).then((s) => {
                     s.destroy().then(() => {
                       if (err) return done(err);
                       done();
@@ -94,4 +96,3 @@ describe('/schedules', () => {
     });
   });
 });
-
