@@ -2,14 +2,11 @@
 const request = require('supertest');
 const app = require('../app');
 const passportStub = require('passport-stub');
-const User = require('../models/user');
-const Schedule = require('../models/schedule');
-const Candidate = require('../models/candidate');
 
 describe('/login', () => {
   beforeAll(() => {
-    passportStub.install(app);
-    passportStub.login({ username: 'testuser' });
+       passportStub.install(app);
+       passportStub.login({ username: 'testuser' });
    });
 
   afterAll(() => {
@@ -42,6 +39,9 @@ describe('/logout', () => {
   });
 });
 
+
+
+
 describe('/schedules', () => {
   beforeAll(() => {
     passportStub.install(app);
@@ -68,7 +68,12 @@ describe('/schedules', () => {
           const createdSchedulePath = res.headers.location;
           request(app)
             .get(createdSchedulePath)
-            // TODO 作成された予定と候補が表示されていることをテストする
+            .expect(/テスト予定1/)
+            .expect(/テストメモ1/)
+            .expect(/テストメモ2/)
+            .expect(/テスト候補1/)
+            .expect(/テスト候補2/)
+            .expect(/テスト候補3/)
             .expect(200)
             .end((err, res) => {
               if (err) return done(err);
@@ -94,4 +99,3 @@ describe('/schedules', () => {
     });
   });
 });
-
