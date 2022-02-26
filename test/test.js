@@ -54,7 +54,7 @@ describe('/schedules', () => {
   });
 
   test('予定が作成でき、表示される', done => {
-    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+    User.upsert({ userId: 0, userName: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
         .send({
@@ -69,6 +69,11 @@ describe('/schedules', () => {
           request(app)
             .get(createdSchedulePath)
             // TODO 作成された予定と候補が表示されていることをテストする
+            .expect(/testuser/)
+            .expect(/テスト予定1/)
+            .expect(/テストメモ[1-2]/)            
+            .expect(/テスト候補[1-3]/)
+            .expect(/欠席/)
             .expect(200)
             .end((err, res) => {
               if (err) return done(err);
