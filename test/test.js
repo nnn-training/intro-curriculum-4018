@@ -58,9 +58,9 @@ describe('/schedules', () => {
       request(app)
         .post('/schedules')
         .send({
-          scheduleName: 'テスト予定1',
-          memo: 'テストメモ1\r\nテストメモ2',
-          candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3'
+          scheduleName: 'テスト予定-ラーメンを食べにいく',
+          memo: 'テストメモ1-油多め\r\nテストメモ2-辛め',
+          candidates: 'テスト候補1-青葉\r\nテスト候補2-弁慶\r\nテスト候補3-中本'
         })
         .expect('Location', /schedules/)
         .expect(302)
@@ -69,6 +69,12 @@ describe('/schedules', () => {
           request(app)
             .get(createdSchedulePath)
             // TODO 作成された予定と候補が表示されていることをテストする
+            .expect(/テスト予定-ラーメンを食べにいく/)
+            .expect(/テストメモ1-油多め/)
+            .expect(/テストメモ2-辛め/)
+            .expect(/テスト候補1-青葉/)
+            .expect(/テスト候補2-弁慶/)
+            .expect(/テスト候補3-中本/)
             .expect(200)
             .end((err, res) => {
               if (err) return done(err);
