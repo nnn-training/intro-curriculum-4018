@@ -53,40 +53,48 @@ describe('/schedules', () => {
     passportStub.uninstall(app);
   });
 
-  test('予定が作成でき、表示される', async (done) => {
-    await User.upsert({ userId: 0, username: 'testuser' });
-    request(app)
-      .post('/schedules')
-      .send({
-        scheduleName: 'テスト予定1',
-        memo: 'テストメモ1\r\nテストメモ2',
-        candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3'
-      })
-      .expect('Location', /schedules/)
-      .expect(302)
-      .end(async (err, res) => {
-        const createdSchedulePath = res.headers.location;
-        request(app)
-          .get(createdSchedulePath)
-          // TODO 作成された予定と候補が表示されていることをテストする
-          .expect(200)
-          .end((err, res) => {
-            if (err) return done(err);
-            // テストで作成したデータを削除
-            const scheduleId = createdSchedulePath.split('/schedules/')[1];
-            const candidates = await Candidate.findAll({
-              where: { scheduleId: scheduleId }
+  test('予定が作成でき、表示される', done => {
+    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+      request(app)
+        .post('/schedules')
+        .send({
+          scheduleName: 'テスト予定1',
+          memo: 'テストメモ1\r\nテストメモ2',
+          candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3'
+        })
+        .expect('Location', /schedules/)
+        .expect(302)
+        .end((err, res) => {
+          const createdSchedulePath = res.headers.location;
+          request(app)
+            .get(createdSchedulePath)
+            // TODO 作成された予定と候補が表示されていることをテストする
+            .expect(/<th>テスト候補1<\/th>/)
+            .expect(/<th>テスト候補2<\/th>/)
+            .expect(/<th>テスト候補3<\/th>/)
+            .expect(/<h4>テスト予定1<\/h4>/)
+            .expect(200)
+            .end((err, res) => {
+              if (err) return done(err);
+              // テストで作成したデータを削除
+              const scheduleId = createdSchedulePath.split('/schedules/')[1];
+              Candidate.findAll({
+                where: { scheduleId: scheduleId }
+              }).then(candidates => {
+                const promises = candidates.map(c => {
+                  return c.destroy();
+                });
+                Promise.all(promises).then(() => {
+                  Schedule.findByPk(scheduleId).then(s => {
+                    s.destroy().then(() => {
+                      if (err) return done(err);
+                      done();
+                    });
+                  });
+                });
+              });
             });
-            const promises = candidates.map(c => {
-              return c.destroy();
-            });
-            await Promise.all(promises)
-            const s = await Schedule.findByPk(scheduleId)
-            await s.destroy()
-            if (err) return done(err);
-            done();
-          });
-      });
+        });
+    });
   });
 });
-
