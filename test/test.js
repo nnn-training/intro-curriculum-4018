@@ -82,6 +82,8 @@ describe('/schedules', () => {
     await request(app)
       .get(createdSchedulePath)
       .expect(/<h4>\s*テスト予定1\s*<\/h4>/)
+      .expect(/テストメモ1/)
+      .expect(/テストメモ2/)
       .expect(/<th>\s*テスト候補1\s*<\/th>/)
       .expect(/<th>\s*テスト候補2\s*<\/th>/)
       .expect(/<th>\s*テスト候補3\s*<\/th>/)
