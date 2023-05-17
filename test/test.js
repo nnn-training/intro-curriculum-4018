@@ -81,7 +81,10 @@ describe('/schedules', () => {
     scheduleId = createdSchedulePath.split('/schedules/')[1];
     await request(app)
       .get(createdSchedulePath)
-      // TODO 作成された予定と候補が表示されていることをテストする
+      .expect(/<h4>\s*テスト予定1\s*<\/h4>/)
+      .expect(/<th>\s*テスト候補1\s*<\/th>/)
+      .expect(/<th>\s*テスト候補2\s*<\/th>/)
+      .expect(/<th>\s*テスト候補3\s*<\/th>/)
       .expect(200)
   });
 });
