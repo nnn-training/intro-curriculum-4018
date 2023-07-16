@@ -8,7 +8,8 @@ const Candidate = require('../models/candidate');
 const User = require('../models/user');
 
 router.get('/new', authenticationEnsurer, (req, res, next) => {
-  res.render('new', { user: req.user });
+  // res.render('new', { user: req.user });
+  res.render('new');
 });
 
 router.post('/', authenticationEnsurer, async (req, res, next) => {
@@ -21,6 +22,7 @@ router.post('/', authenticationEnsurer, async (req, res, next) => {
     createdBy: req.user.id,
     updatedAt: updatedAt
   });
+
   const candidateNames = req.body.candidates.trim().split('\n').map((s) => s.trim()).filter((s) => s !== "");
   const candidates = candidateNames.map((c) => { return {
     candidateName: c,
@@ -47,8 +49,13 @@ router.get('/:scheduleId', authenticationEnsurer, async (req, res, next) => {
       where: { scheduleId: schedule.scheduleId },
       order: [['candidateId', 'ASC']]
     });
+    // res.render('schedule', {
+    //   user: req.user,
+    //   schedule: schedule,
+    //   candidates: candidates,
+    //   users: [req.user]
+    // });
     res.render('schedule', {
-      user: req.user,
       schedule: schedule,
       candidates: candidates,
       users: [req.user]

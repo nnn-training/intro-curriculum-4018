@@ -19,7 +19,8 @@ router.get('/', async (req, res, next) => {
       schedules: schedules
     });
   } else {
-    res.render('index', { title: title, user: req.user });
+    // res.render('index', { title: title, user: req.user });
+    res.render('index', { title: title });
   }
 });
 
