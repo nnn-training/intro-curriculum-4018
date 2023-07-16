@@ -57,10 +57,18 @@ describe('/schedules', () => {
     const candidates = await Candidate.findAll({
       where: { scheduleId: scheduleId }
     });
+
     const promises = candidates.map((c) => {
+      // model.destory()でレコードを削除します.返り値はPromiseオブジェクトです
       return c.destroy();
     });
+
+    /*
+      Promise.all()は引数に渡されたすべてのPromiseオブジェクトが終了するのを待ちます
+      Promise.all()は引数に配列で渡された複数のPromiseを１つのPromiseオブジェクトのまとめます
+     */
     await Promise.all(promises)
+    // Schedule.findByPk()は主キーと引数を比較して検索する
     const s = await Schedule.findByPk(scheduleId)
     await s.destroy()
   });
@@ -81,7 +89,12 @@ describe('/schedules', () => {
     scheduleId = createdSchedulePath.split('/schedules/')[1];
     await request(app)
       .get(createdSchedulePath)
-      // TODO 作成された予定と候補が表示されていることをテストする
+      .expect(/テスト予定1/)
+      .expect(/テストメモ1/)
+      .expect(/テストメモ2/)
+      .expect(/テスト候補1/)
+      .expect(/テスト候補2/)
+      .expect(/テスト候補3/)
       .expect(200)
   });
 });
