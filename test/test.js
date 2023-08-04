@@ -6,16 +6,21 @@ const User = require('../models/user');
 const Schedule = require('../models/schedule');
 const Candidate = require('../models/candidate');
 
-describe('/login', () => {
-  beforeAll(() => {
-    passportStub.install(app);
-    passportStub.login({ username: 'testuser' });
-   });
+// テスト開始前
+const setUp = () => {
+  passportStub.install(app);
+  passportStub.login({ id: 0, username: 'testuser' });
+};
 
-  afterAll(() => {
-    passportStub.logout();
-    passportStub.uninstall(app);
-  });
+// テスト終了後
+const tearDown = () => {
+  passportStub.logout();
+  passportStub.uninstall(app);
+};
+
+describe('/login', () => {
+  beforeAll(() => { setUp(); });
+  afterAll(() => { tearDown(); });
 
   test('ログインのためのリンクが含まれる', () => {
     return request(app)
@@ -43,15 +48,8 @@ describe('/logout', () => {
 });
 
 describe('/schedules', () => {
-  beforeAll(() => {
-    passportStub.install(app);
-    passportStub.login({ id: 0, username: 'testuser' });
-  });
-
-  afterAll(() => {
-    passportStub.logout();
-    passportStub.uninstall(app);
-  });
+  beforeAll(() => { setUp(); });
+  afterAll(() => { tearDown(); });
 
   test('予定が作成でき、表示される', done => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
@@ -68,12 +66,17 @@ describe('/schedules', () => {
           const createdSchedulePath = res.headers.location;
           request(app)
             .get(createdSchedulePath)
-            // TODO 作成された予定と候補が表示されていることをテストする
+            .expect(/テスト予定1/)
+            .expect(/テストメモ1/)
+            .expect(/テストメモ2/)
+            .expect(/テスト候補1/)
+            .expect(/テスト候補2/)
+            .expect(/テスト候補3/)
             .expect(200)
             .end((err, res) => {
               if (err) return done(err);
               // テストで作成したデータを削除
-              const scheduleId = createdSchedulePath.split('/schedules/')[1];
+              const [_, scheduleId] = createdSchedulePath.split('/schedules/');
               Candidate.findAll({
                 where: { scheduleId: scheduleId }
               }).then(candidates => {
@@ -94,4 +97,3 @@ describe('/schedules', () => {
     });
   });
 });
-
