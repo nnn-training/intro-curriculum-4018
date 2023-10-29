@@ -3,7 +3,7 @@ const request = require('supertest');
 const app = require('../app');
 const passportStub = require('passport-stub');
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient({ log: [ 'query' ] });
+const prisma = new PrismaClient({ log: ['query'] });
 
 describe('/login', () => {
   beforeAll(() => {
@@ -34,10 +34,7 @@ describe('/login', () => {
 
 describe('/logout', () => {
   test('/ にリダイレクトされる', async () => {
-    await request(app)
-      .get('/logout')
-      .expect('Location', '/')
-      .expect(302);
+    await request(app).get('/logout').expect('Location', '/').expect(302);
   });
 });
 
@@ -58,19 +55,20 @@ describe('/schedules', () => {
   });
 
   test('予定が作成でき、表示される', async () => {
-    const userId = 0, username = 'testuser';
+    const userId = 0,
+      username = 'testuser';
     const data = { userId, username };
     await prisma.user.upsert({
       where: { userId },
       create: data,
-      update: data
+      update: data,
     });
     const res = await request(app)
       .post('/schedules')
       .send({
         scheduleName: 'テスト予定1',
         memo: 'テストメモ1\r\nテストメモ2',
-        candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3'
+        candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3',
       })
       .expect('Location', /schedules/)
       .expect(302);
@@ -79,7 +77,12 @@ describe('/schedules', () => {
     scheduleId = createdSchedulePath.split('/schedules/')[1];
     await request(app)
       .get(createdSchedulePath)
-      // TODO 作成された予定と候補が表示されていることをテストする
+      .expect(/テスト予定1/)
+      .expect(/テストメモ1/)
+      .expect(/テストメモ2/)
+      .expect(/テスト候補1/)
+      .expect(/テスト候補2/)
+      .expect(/テスト候補3/)
       .expect(200);
   });
 });
