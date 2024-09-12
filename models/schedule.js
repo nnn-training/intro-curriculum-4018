@@ -1,5 +1,5 @@
 'use strict';
-const {sequelize, DataTypes} = require('./sequelize-loader');
+const { sequelize, DataTypes } = require('./sequelize-loader');
 
 const Schedule = sequelize.define(
   'schedules',
@@ -21,7 +21,7 @@ const Schedule = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    updatedAt: {
+    updateAt: {
       type: DataTypes.DATE,
       allowNull: false
     }
