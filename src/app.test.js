@@ -93,7 +93,12 @@ describe("/schedules", () => {
 
     const res = await app.request(createdSchedulePath);
     const body = await res.text();
-    // TODO 作成された予定と候補が表示されていることをテストする
+    expect(body).toMatch(/テスト予定1/);
+    expect(body).toMatch(/テストメモ1/);
+    expect(body).toMatch(/テストメモ2/);
+    expect(body).toMatch(/テスト候補1/);
+    expect(body).toMatch(/テスト候補2/);
+    expect(body).toMatch(/テスト候補3/);
     expect(res.status).toBe(200);
   });
 });
